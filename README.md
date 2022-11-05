@@ -43,6 +43,16 @@ Forgive me for over verbose comments and naming convention, but my emphasis is t
 
 I hope my this attempt will get you started in use of nimble BLE. Later you would be able to go further on your own, Thanks.
 
+Bellow are some very useful links for working with BLE.
 
+chrome://bluetooth-internals/#adapter 
+
+https://developers.google.com/web/updates/2015/07/interact-with-ble-devices-on-the-web 
+https://mynewt.apache.org/latest/network/index.html 
+https://mynewt.apache.org/latest/tutorials/ble/bleprph/bleprph.html 
+https://mynewt.apache.org/latest/network/ble_hs/ble_hs.html 
+https://mynewt.apache.org/latest/network/ble_hs/ble_gatts.html 
+https://mynewt.apache.org/latest/network/ble_sec.html 
+https://mynewt.apache.org/latest/get_started/index.html 
 
 
