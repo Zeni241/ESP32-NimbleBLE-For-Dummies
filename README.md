@@ -1,6 +1,9 @@
-# ESP32-NimbleBLE for Dummies!!
 
-Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
+
+# ESP32-NimbleBLE for Dummies!!
+![nimble-esp](https://user-images.githubusercontent.com/13729574/200117670-21afcf63-758c-4038-8ccc-cb54e4df8b42.jpg)
+
+Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
 
 I had hard time understanding its implementation in esp-idf examples given by espressif. So I decided to write down this tutorial for my future reference. 
 
