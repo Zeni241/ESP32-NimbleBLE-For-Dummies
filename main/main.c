@@ -11,12 +11,13 @@
 #include "services/gap/ble_svc_gap.h"
 #include "bleprph.h"
 
+//!! Comments added by me start with "//!!"
 
 static const char *tag = "NimBLE_BLE_PRPH";
 static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
 static uint8_t own_addr_type;
 uint16_t notification_handle;
-static bool notify_state; // When client subscribe to notifications, the value is set to 1
+static bool notify_state; //!! When client subscribe to notifications, the value is set to 1
 uint16_t conn_handle;     
 
 void ble_store_config_init(void);
@@ -49,7 +50,7 @@ bleprph_print_conn_desc(struct ble_gap_conn_desc *desc)
                 desc->sec_state.bonded);
 }
 
-   
+//!! Freetos task to start notifications   
 void vTasksendNotification()
 {
 
@@ -59,7 +60,7 @@ void vTasksendNotification()
     struct os_mbuf *om;
     while (1)
     {
-        if (notify_state) // This value is checked so that we don't send notifications if no one has subscribed to our notification handle.
+        if (notify_state) //!! This value is checked so that we don't send notifications if no one has subscribed to our notification handle.
         {
             om = ble_hs_mbuf_from_flat(notice, sizeof(notice));
             rc = ble_gattc_notify_custom(conn_handle, notification_handle, om);
@@ -227,14 +228,14 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
                     event->subscribe.reason,
                     event->subscribe.prev_notify,
                     event->subscribe.cur_notify,
-                    event->subscribe.cur_notify, notification_handle,
+                    event->subscribe.cur_notify, notification_handle, //!! Client Subscribed to notification_handle
                     event->subscribe.prev_indicate,
                     event->subscribe.cur_indicate);
         
         if (event->subscribe.attr_handle == notification_handle)
         { 
             printf("\nSubscribed with notification_handle =%d\n", event->subscribe.attr_handle);
-            notify_state = event->subscribe.cur_notify; // As the client is now subscribed to notifications, the value is set to 1
+            notify_state = event->subscribe.cur_notify; //!! As the client is now subscribed to notifications, the value is set to 1
             printf("notify_state=%d\n", notify_state);
         }
        
@@ -340,7 +341,7 @@ void app_main(void)
     assert(rc == 0);
 
     /* Set the default device name. */
-    rc = ble_svc_gap_device_name_set("nimble-ble");
+    rc = ble_svc_gap_device_name_set("nimble-ble"); //!! Set the name of this device
     assert(rc == 0);
 
     /* XXX Need to have template for store */
@@ -348,7 +349,7 @@ void app_main(void)
 
     nimble_port_freertos_init(bleprph_host_task);
    
-    // Start the FreeRTOS task to notify the client
+    //!! Start the FreeRTOS task to notify the client
     xTaskCreate(&vTasksendNotification, "vTasksendNotification", 4096, NULL, 1, NULL);
    
 }
