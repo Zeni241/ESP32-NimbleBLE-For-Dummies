@@ -11,7 +11,9 @@ I had hard time understanding how to use it with esp32. The examples of Nimble B
 
 I expect that you already have understanding of concept of GAP, GATT, services and characteristics. Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
-**So as they always say, lets get started!**
+**So as they always say, lets get started!** 
+
+:snowflake: :sunny:
 
 In this tutorial we will create one service and two characteristics of this service.
 Client will be able read or write to the first characteristics. This characteristic is created only to show how to handle when client can read or write to same characteristic.
@@ -50,26 +52,26 @@ I hope my this attempt will get you started in use of nimble BLE. Later you woul
 
 Bellow are some very useful links for working with Nimble BLE.
 
-chrome://bluetooth-internals/#adapter 
++ chrome://bluetooth-internals/#adapter 
 
-https://docs.espressif.com/projects/esp-idf/en/v4.3/esp32/api-reference/bluetooth/nimble/index.html?highlight=nimble
++ https://docs.espressif.com/projects/esp-idf/en/v4.3/esp32/api-reference/bluetooth/nimble/index.html?highlight=nimble
 
-https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/nimble/bleprph
++ https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/nimble/bleprph
 
-https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/nimble/blehr
++ https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/nimble/blehr
 
-https://developers.google.com/web/updates/2015/07/interact-with-ble-devices-on-the-web 
++ https://developers.google.com/web/updates/2015/07/interact-with-ble-devices-on-the-web 
 
-https://mynewt.apache.org/latest/network/index.html 
++ https://mynewt.apache.org/latest/network/index.html 
 
-https://mynewt.apache.org/latest/tutorials/ble/bleprph/bleprph.html 
++ https://mynewt.apache.org/latest/tutorials/ble/bleprph/bleprph.html 
 
-https://mynewt.apache.org/latest/network/ble_hs/ble_hs.html 
++ https://mynewt.apache.org/latest/network/ble_hs/ble_hs.html 
 
-https://mynewt.apache.org/latest/network/ble_hs/ble_gatts.html 
++ https://mynewt.apache.org/latest/network/ble_hs/ble_gatts.html 
 
-https://mynewt.apache.org/latest/network/ble_sec.html 
++ https://mynewt.apache.org/latest/network/ble_sec.html 
 
-https://mynewt.apache.org/latest/get_started/index.html 
++ https://mynewt.apache.org/latest/get_started/index.html 
 
 
