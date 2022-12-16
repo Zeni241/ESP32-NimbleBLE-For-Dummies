@@ -11,9 +11,9 @@ I had hard time understanding how to use it with esp32. The examples of Nimble B
 
 I expect that you already have understanding of concept of GAP, GATT, services and characteristics. Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
-**So as they always say, lets get started!** 
+**So as they always say, lets get started!**  :sunny:
 
-:snowflake: :sunny:
+
 
 In this tutorial we will create one service and two characteristics of this service.
 Client will be able read or write to the first characteristics. This characteristic is created only to show how to handle when client can read or write to same characteristic.
