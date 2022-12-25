@@ -16,6 +16,9 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include "bleprph.h"
 static const char *tag = "NimBLE_BLE_PRPH";
+static uint8_t own_addr_type;
+uint16_t notification_handle;
+uint16_t conn_handle; 
 //!! Comments added by me start with "//!!"
 
 //!! b2bbc642-46da-11ed-b878-0242ac120002

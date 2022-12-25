@@ -14,11 +14,11 @@
 //!! Comments added by me start with "//!!"
 
 static const char *tag = "NimBLE_BLE_PRPH";
-static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
-static uint8_t own_addr_type;
-uint16_t notification_handle;
+//static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
+// static uint8_t own_addr_type;
+// uint16_t notification_handle;
 static bool notify_state; //!! When client subscribe to notifications, the value is set to 1
-uint16_t conn_handle;     
+    
 
 void ble_store_config_init(void);
 
