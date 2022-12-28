@@ -17,54 +17,56 @@
 #include "bleprph.h"
 #include "nimble.h"
 
+//@____________________________________________________________________
 esp_err_t ret;
 static const char *tag = "NimBLE_BLE";
 static uint8_t own_addr_type;
 uint16_t notification_handle;
-uint16_t conn_handle; 
-bool notify_state; //!! When client subscribe to notifications, the value is set to 1.Check this value before sending notifictions.  
+uint16_t conn_handle;
+bool notify_state; //!! When client subscribe to notifications, the value is set to 1.Check this value before sending notifictions.
 TaskHandle_t xHandle = NULL;
-char *notice; 
-
-
-
+char *notification; //! You will set this value and send it as notification.
+//@____________________________________________________________________
 //!! b2bbc642-46da-11ed-b878-0242ac120002
 static const ble_uuid128_t gatt_svr_svc_uuid =
     BLE_UUID128_INIT(0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xda, 0x46, 0x42, 0xc6, 0xbb, 0xb2);
 
-//!! c9af9c76-46de-11ed-b878-0242ac120002 
+//!! c9af9c76-46de-11ed-b878-0242ac120002
 static const ble_uuid128_t gatt_svr_chr_uuid =
     BLE_UUID128_INIT(0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xde, 0x46, 0x76, 0x9c, 0xaf, 0xc9);
+//@____________________________________________________________________
+char characteristic_value[50] = "I am characteristic value"; //!! When client read characteristic, he get this value. You can also set this value in your code.
+char characteristic_received_value[500];                     //!! When client write to characteristic , he set value of this. You can read it in code.
 
-char characteristic_value[50]="I am characteristic value"; //!! When client read characteristic, he get this value.
-char characteristic_received_value[500]; //!! When client write to characteristic , he set value of this.
+uint16_t min_length = 1;   //!! minimum length the client can write to a characterstic
+uint16_t max_length = 700; //!! maximum length the client can write to a characterstic
 
-uint16_t min_length=1; //!! minimum length the client can write to a characterstic
-uint16_t max_length=700; //!! maximum length the client can write to a characterstic
 
-// extern uint16_t notification_handle; //!! Whenever value of this variable is changed, server send that value as notification to client 
-// extern uint16_t conn_handle;
-
+//@____________________________________________________________________
 void ble_store_config_init(void);
+static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
 
 static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                struct ble_gatt_access_ctxt *ctxt,
-                               void *arg); //!! Callback function. When ever characrstic one will be accessed by user, this function will execute
+                               void *arg); //!! Callback function. When ever characrstic will be accessed by user, this function will execute
 
-static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len);
+static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len); //!! Callback function. When ever user write to this characterstic,this function will execute
 
-//& ----- gatt_svr copy
+static void bleprph_on_reset(int reason);
+void bleprph_host_task(void *param);
+static void bleprph_on_sync(void);
+//@____________________________________________________________________
+
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     {
 
         .type = BLE_GATT_SVC_TYPE_PRIMARY,
         .uuid = &gatt_svr_svc_uuid.u,
         .characteristics = (struct ble_gatt_chr_def[]){{
-                                                           /*** //!! Characteristic: Just for client reading/writing example. */
                                                            .uuid = &gatt_svr_chr_uuid.u,     //!! UUID as given above
                                                            .access_cb = gatt_svr_chr_access, //!! Callback function. When ever this characrstic will be accessed by user, this function will execute
                                                            .val_handle = &notification_handle,
-                                                           .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_NOTIFY, //!! flags set permissions. In this case User can read This characterstic and can write to it
+                                                           .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_NOTIFY, //!! flags set permissions. In this case User can read this characterstic, can write to it,and get notified. 
                                                        },
                                                        {
                                                            0, /* No more characteristics in this service. This is necessary */
@@ -90,106 +92,29 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                         sizeof characteristic_value);
     return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
 
-  case BLE_GATT_ACCESS_OP_WRITE_CHR:                                                                 //!! In case user accessed this characterstic to write, bellow lines will executed.
-    rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, NULL); //!! Function "gatt_svr_chr_write" givn bellow will fire.
-    printf("Received=%s\n", characteristic_received_value);                                          // Print the received value
-    //getValues();
+  case BLE_GATT_ACCESS_OP_WRITE_CHR: //!! In case user accessed this characterstic to write, bellow lines will executed.
+    rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, NULL); //!! Function "gatt_svr_chr_write" will fire.
+    printf("Received=%s\n", characteristic_received_value);  // Print the received value
+    //! Use received value in you code.
 
-return rc;
-    default:
-  assert(0);
-  return BLE_ATT_ERR_UNLIKELY;
-
-
+    return rc;
+  default:
+    assert(0);
+    return BLE_ATT_ERR_UNLIKELY;
   }
 }
 
-static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len)
-{
-    uint16_t om_len;
-    int rc;
 
-    om_len = OS_MBUF_PKTLEN(om);
-    if (om_len < min_len || om_len > max_len)
-    {
-        return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
-    }
-
-    rc = ble_hs_mbuf_to_flat(om, dst, max_len, len);
-    if (rc != 0)
-    {
-        return BLE_ATT_ERR_UNLIKELY;
-    }
-
-    return 0;
-}
-
-
-void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg)
-{
-    char buf[BLE_UUID_STR_LEN];
-
-    switch (ctxt->op)
-    {
-    case BLE_GATT_REGISTER_OP_SVC:
-        MODLOG_DFLT(DEBUG, "registered service %s with handle=%d\n",
-                    ble_uuid_to_str(ctxt->svc.svc_def->uuid, buf),
-                    ctxt->svc.handle);
-        break;
-
-    case BLE_GATT_REGISTER_OP_CHR:
-        MODLOG_DFLT(DEBUG, "registering characteristic %s with "
-                           "def_handle=%d val_handle=%d\n",
-                    ble_uuid_to_str(ctxt->chr.chr_def->uuid, buf),
-                    ctxt->chr.def_handle,
-                    ctxt->chr.val_handle);
-        break;
-
-    case BLE_GATT_REGISTER_OP_DSC:
-        MODLOG_DFLT(DEBUG, "registering descriptor %s with handle=%d\n",
-                    ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, buf),
-                    ctxt->dsc.handle);
-        break;
-
-    default:
-        assert(0);
-        break;
-    }
-}
-
-int gatt_svr_init(void)
-{
-    int rc;
-
-    ble_svc_gap_init();
-    ble_svc_gatt_init();
-
-    rc = ble_gatts_count_cfg(gatt_svr_svcs);
-    if (rc != 0)
-    {
-        return rc;
-    }
-
-    rc = ble_gatts_add_svcs(gatt_svr_svcs);
-    if (rc != 0)
-    {
-        return rc;
-    }
-
-    return 0;
-}
-
-void sendNotification()
+void sendNotification() //!Use this function to send notification once (after setting value of variable"notification)
 {
   int rc;
   struct os_mbuf *om;
-  
+
   if (notify_state) //!! This value is checked so that we don't send notifications if user has not subscribed to our notification handle.
   {
-    om = ble_hs_mbuf_from_flat(notice, sizeof(notice)); //! Value of variable "notice" will be sent as notification.
-    
+    om = ble_hs_mbuf_from_flat(notification, sizeof(notification)); //! Value of variable "notification" will be sent as notification.
+
     rc = ble_gattc_notify_custom(conn_handle, notification_handle, om);
-   
 
     if (rc != 0)
     {
@@ -198,13 +123,188 @@ void sendNotification()
   }
   else
   {
-      printf("user not subscribed to notifications.\n");
-     
+    printf("user not subscribed to notifications.\n");
   }
-  
 }
 
-//@______copy from main.c begins ________
+void vTasksendNotification() //! For sending notifications periodically as freetos task(after setting value of variable"notification)
+{
+  int rc;
+  struct os_mbuf *om;
+  while (1)
+  {
+    if (notify_state) //!! This value is checked so that we don't send notifications if no one has subscribed to our notification handle.
+    {
+      om = ble_hs_mbuf_from_flat(notification, sizeof(notification));
+      rc = ble_gattc_notify_custom(conn_handle, notification_handle, om);
+      printf("\n rc=%d\n", rc);
+
+      if (rc != 0)
+      {
+        printf("\n error notifying; rc\n");
+      }
+    }
+    else
+    {
+      printf("No one subscribed to notifications\n");
+    }
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+  }
+  vTaskDelete(NULL);
+}
+
+void startBLE() //! Call this function to start BLE
+{
+
+  //! Below is the sequence of APIs to be called to init/enable NimBLE host and ESP controller:
+  printf("\n Staring BLE \n");
+  int rc;
+
+  ESP_ERROR_CHECK(ret);
+
+  ESP_ERROR_CHECK(esp_nimble_hci_and_controller_init());
+
+  nimble_port_init();
+  /* Initialize the NimBLE host configuration. */
+  ble_hs_cfg.reset_cb = bleprph_on_reset;
+  ble_hs_cfg.sync_cb = bleprph_on_sync;
+  ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
+  ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+
+  ble_hs_cfg.sm_io_cap = CONFIG_EXAMPLE_IO_TYPE;
+#ifdef CONFIG_EXAMPLE_BONDING
+  ble_hs_cfg.sm_bonding = 1;
+#endif
+#ifdef CONFIG_EXAMPLE_MITM
+  ble_hs_cfg.sm_mitm = 1;
+#endif
+#ifdef CONFIG_EXAMPLE_USE_SC
+  ble_hs_cfg.sm_sc = 1;
+#else
+  ble_hs_cfg.sm_sc = 0;
+#endif
+#ifdef CONFIG_EXAMPLE_BONDING
+  ble_hs_cfg.sm_our_key_dist = 1;
+  ble_hs_cfg.sm_their_key_dist = 1;
+#endif
+
+  rc = gatt_svr_init();
+  assert(rc == 0);
+
+  /* Set the default device name. */
+  rc = ble_svc_gap_device_name_set("roborne-ble"); //!! Set the name of this device
+  assert(rc == 0);
+
+  /* XXX Need to have template for store */
+
+  nimble_port_freertos_init(bleprph_host_task);
+  printf("characteristic_value at end of startBLE=%s\n", characteristic_value);
+}
+
+void stopBLE() //! Call this function to stop BLE
+{
+  //! Below is the sequence of APIs to be called to disable/deinit NimBLE host and ESP controller:
+  printf("\n Stoping BLE and notification task \n");
+  // vTaskDelete(xHandle);
+  int ret = nimble_port_stop();
+  if (ret == 0)
+  {
+    nimble_port_deinit();
+
+    ret = esp_nimble_hci_and_controller_deinit();
+    if (ret != ESP_OK)
+    {
+      ESP_LOGE(tag, "esp_nimble_hci_and_controller_deinit() failed with error: %d", ret);
+    }
+  }
+}
+
+void startNVS() //! Mandatory to initialize NVS at the start.
+{
+  /* Initialize NVS — it is used to store PHY calibration data */
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+  }
+}
+
+//@____________________________________________________________________
+
+static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len)
+{
+  uint16_t om_len;
+  int rc;
+
+  om_len = OS_MBUF_PKTLEN(om);
+  if (om_len < min_len || om_len > max_len)
+  {
+    return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+  }
+
+  rc = ble_hs_mbuf_to_flat(om, dst, max_len, len);
+  if (rc != 0)
+  {
+    return BLE_ATT_ERR_UNLIKELY;
+  }
+
+  return 0;
+}
+
+void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg)
+{
+  char buf[BLE_UUID_STR_LEN];
+
+  switch (ctxt->op)
+  {
+  case BLE_GATT_REGISTER_OP_SVC:
+    MODLOG_DFLT(DEBUG, "registered service %s with handle=%d\n",
+                ble_uuid_to_str(ctxt->svc.svc_def->uuid, buf),
+                ctxt->svc.handle);
+    break;
+
+  case BLE_GATT_REGISTER_OP_CHR:
+    MODLOG_DFLT(DEBUG, "registering characteristic %s with "
+                       "def_handle=%d val_handle=%d\n",
+                ble_uuid_to_str(ctxt->chr.chr_def->uuid, buf),
+                ctxt->chr.def_handle,
+                ctxt->chr.val_handle);
+    break;
+
+  case BLE_GATT_REGISTER_OP_DSC:
+    MODLOG_DFLT(DEBUG, "registering descriptor %s with handle=%d\n",
+                ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, buf),
+                ctxt->dsc.handle);
+    break;
+
+  default:
+    assert(0);
+    break;
+  }
+}
+
+int gatt_svr_init(void)
+{
+  int rc;
+
+  ble_svc_gap_init();
+  ble_svc_gatt_init();
+
+  rc = ble_gatts_count_cfg(gatt_svr_svcs);
+  if (rc != 0)
+  {
+    return rc;
+  }
+
+  rc = ble_gatts_add_svcs(gatt_svr_svcs);
+  if (rc != 0)
+  {
+    return rc;
+  }
+
+  return 0;
+}
 
 static void
 bleprph_print_conn_desc(struct ble_gap_conn_desc *desc)
@@ -229,7 +329,6 @@ bleprph_print_conn_desc(struct ble_gap_conn_desc *desc)
               desc->sec_state.authenticated,
               desc->sec_state.bonded);
 }
-
 
 static void
 bleprph_advertise(void)
@@ -445,73 +544,4 @@ void bleprph_host_task(void *param)
   nimble_port_freertos_deinit();
 }
 
-void startBLE()
-{
- 
-  //! Below is the sequence of APIs to be called to init/enable NimBLE host and ESP controller:
-  printf("\n Staring BLE \n");
-  int rc;
-
-  ESP_ERROR_CHECK(ret);
-
-  ESP_ERROR_CHECK(esp_nimble_hci_and_controller_init());
-
-  nimble_port_init();
-  /* Initialize the NimBLE host configuration. */
-  ble_hs_cfg.reset_cb = bleprph_on_reset;
-  ble_hs_cfg.sync_cb = bleprph_on_sync;
-  ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
-  ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-
-  ble_hs_cfg.sm_io_cap = CONFIG_EXAMPLE_IO_TYPE;
-#ifdef CONFIG_EXAMPLE_BONDING
-  ble_hs_cfg.sm_bonding = 1;
-#endif
-#ifdef CONFIG_EXAMPLE_MITM
-  ble_hs_cfg.sm_mitm = 1;
-#endif
-#ifdef CONFIG_EXAMPLE_USE_SC
-  ble_hs_cfg.sm_sc = 1;
-#else
-  ble_hs_cfg.sm_sc = 0;
-#endif
-#ifdef CONFIG_EXAMPLE_BONDING
-  ble_hs_cfg.sm_our_key_dist = 1;
-  ble_hs_cfg.sm_their_key_dist = 1;
-#endif
-
-  rc = gatt_svr_init();
-  assert(rc == 0);
-
-  /* Set the default device name. */
-  rc = ble_svc_gap_device_name_set("roborne-ble"); //!! Set the name of this device
-  assert(rc == 0);
-
-  /* XXX Need to have template for store */
-  
-
-  nimble_port_freertos_init(bleprph_host_task);
-  printf("characteristic_value at end of startBLE=%s\n", characteristic_value);
-}
-
-void stopBLE()
-{
-  //! Below is the sequence of APIs to be called to disable/deinit NimBLE host and ESP controller:
-  printf("\n Stoping BLE and notification task \n");
-  // vTaskDelete(xHandle);
-  int ret = nimble_port_stop();
-  if (ret == 0)
-  {
-    nimble_port_deinit();
-
-    ret = esp_nimble_hci_and_controller_deinit();
-    if (ret != ESP_OK)
-    {
-      ESP_LOGE(tag, "esp_nimble_hci_and_controller_deinit() failed with error: %d", ret);
-    }
-  }
-}
-
-//@___________End main.c copy______________
-
-
+//@____________________________________________________________________
