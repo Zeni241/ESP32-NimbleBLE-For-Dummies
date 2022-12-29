@@ -5,18 +5,22 @@
 
 Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
 
-Due to these reasons I was very much interested to use it instead of Bluedroid or Bluetooth Classic to connect my esp32 devices with bluetooth. But unfortunately the examples of Nimble BLE in esp-idf documentation were of little help.
+Due to these reasons I was very much interested to use it instead of Bluedroid or Bluetooth Classic for my esp32 devices. But unfortunately the examples of Nimble BLE in esp-idf documentation were of little help.
 
- So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. But I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
+ So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. 
+ 
+ But I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
 
-I expect that you already have understanding of concept of GAP, GATT, services and characteristics. Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
+I expect that you already have understanding of concept of GAP, GATT, services and characteristics etc. . Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
 **So as they always say, lets get started!** 
 
 :snowflake: :sunny:
 
-In this tutorial we will create one service and two characteristics of this service.
-Client will be able read or write to the first characteristics. This characteristic is created only to show how to handle when client can read or write to same characteristic.
+In release 2.0 of this tutorial we will create one service and one characteristics of this service. (In release 1.0 there are one service with two characteristics). Further in release 2.0 I have seperated nimble related code in one file and tried to further simplify it easy understanding.
+
+You can create seperate characteristics for reading, writing and sending notifications.
+Client will be able read the characteristic value, write to it. Further this characteristic can send notifications to the client. 
 
 In second characteristic we will learn to notify the client.
 
