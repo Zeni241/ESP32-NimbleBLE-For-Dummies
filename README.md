@@ -5,9 +5,9 @@
 
 Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
 
-I had hard time understanding how to use it with esp32. The examples of Nimble BLE in esp-idf documentation are very hard to follow.
+Due to these reasons I was very much interested to use it instead of Bluedroid or Bluetooth Classic to connect my esp32 devices with bluetooth. But unfortunately the examples of Nimble BLE in esp-idf documentation were of little help.
 
- I consulted many resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. But I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
+ So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. But I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
 
 I expect that you already have understanding of concept of GAP, GATT, services and characteristics. Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
