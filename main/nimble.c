@@ -192,7 +192,7 @@ void startBLE() //! Call this function to start BLE
   assert(rc == 0);
 
   /* Set the default device name. */
-  rc = ble_svc_gap_device_name_set("roborne-ble"); //!! Set the name of this device
+  rc = ble_svc_gap_device_name_set("nimble-ble"); //!! Set the name of this device
   assert(rc == 0);
 
   /* XXX Need to have template for store */
@@ -230,7 +230,7 @@ void startNVS() //! Mandatory to initialize NVS at the start.
   }
 }
 
-//@____________________________________________________________________
+//@_______________________Bellow code will remain as it is_____________________________________
 
 static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len)
 {
