@@ -96,7 +96,9 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
     rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, NULL); //!! Function "gatt_svr_chr_write" will fire.
     printf("Received=%s\n", characteristic_received_value);  // Print the received value
     //! Use received value in you code. For example
-    if(characteristic_received_value=="stop"){
+    char stp[]="stop";
+int x=strcmp(characteristic_received_value,stp);
+    if(x==0){
       stopBLE();
     }
 
