@@ -17,7 +17,7 @@
 #include "bleprph.h"
 #include "nimble.h"
 
-//@____________________________________________________________________
+//@______________________Declare some variables____________________________
 esp_err_t ret;
 static const char *tag = "NimBLE_BLE";
 static uint8_t own_addr_type;
@@ -26,7 +26,7 @@ uint16_t conn_handle;
 bool notify_state; //!! When client subscribe to notifications, the value is set to 1.Check this value before sending notifictions.
 TaskHandle_t xHandle = NULL;
 char *notification; //! You will set this value and send it as notification.
-//@____________________________________________________________________
+//@_____________________Define UUIDs______________________________________
 //!! b2bbc642-46da-11ed-b878-0242ac120002
 static const ble_uuid128_t gatt_svr_svc_uuid =
     BLE_UUID128_INIT(0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xda, 0x46, 0x42, 0xc6, 0xbb, 0xb2);
@@ -34,7 +34,7 @@ static const ble_uuid128_t gatt_svr_svc_uuid =
 //!! c9af9c76-46de-11ed-b878-0242ac120002
 static const ble_uuid128_t gatt_svr_chr_uuid =
     BLE_UUID128_INIT(0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xde, 0x46, 0x76, 0x9c, 0xaf, 0xc9);
-//@____________________________________________________________________
+//@_____Some variables used in service and characteristic declaration______
 char characteristic_value[50] = "I am characteristic value"; //!! When client read characteristic, he get this value. You can also set this value in your code.
 char characteristic_received_value[500];                     //!! When client write to characteristic , he set value of this. You can read it in code.
 
@@ -42,7 +42,7 @@ uint16_t min_length = 1;   //!! minimum length the client can write to a charact
 uint16_t max_length = 700; //!! maximum length the client can write to a characterstic
 
 
-//@____________________________________________________________________
+//@_____________Forward declaration of some functions ___________
 void ble_store_config_init(void);
 static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
 
@@ -55,7 +55,7 @@ static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max
 static void bleprph_on_reset(int reason);
 void bleprph_host_task(void *param);
 static void bleprph_on_sync(void);
-//@____________________________________________________________________
+//@___________________________Heart of nimble code _________________________________________
 
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     {
@@ -80,7 +80,7 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
 
 static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                struct ble_gatt_access_ctxt *ctxt,
-                               void *arg)
+                               void *arg)  //!! Callback function. When ever characrstic will be accessed by user, this function will execute
 {
 
   int rc;
@@ -95,7 +95,10 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
   case BLE_GATT_ACCESS_OP_WRITE_CHR: //!! In case user accessed this characterstic to write, bellow lines will executed.
     rc = gatt_svr_chr_write(ctxt->om, min_length, max_length, &characteristic_received_value, NULL); //!! Function "gatt_svr_chr_write" will fire.
     printf("Received=%s\n", characteristic_received_value);  // Print the received value
-    //! Use received value in you code.
+    //! Use received value in you code. For example
+    if(characteristic_received_value=="stop"){
+      stopBLE();
+    }
 
     return rc;
   default:
@@ -105,7 +108,7 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
 }
 
 
-void sendNotification() //!Use this function to send notification once (after setting value of variable"notification)
+void sendNotification() //!Use this function to send notification once (after setting value of variable "notification")
 {
   int rc;
   struct os_mbuf *om;
@@ -127,7 +130,7 @@ void sendNotification() //!Use this function to send notification once (after se
   }
 }
 
-void vTasksendNotification() //! For sending notifications periodically as freetos task(after setting value of variable"notification)
+void vTasksendNotification() //! For sending notifications periodically as freetos task(after setting value of variable"notification")
 {
   int rc;
   struct os_mbuf *om;
