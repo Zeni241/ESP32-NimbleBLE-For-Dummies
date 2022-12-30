@@ -5,50 +5,65 @@
 
 Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
 
-I had hard time understanding how to use it with esp32. The examples of Nimble BLE in esp-idf documentation are very hard to follow.
+Due to these reasons I was very much interested to use it instead of Bluedroid or Bluetooth Classic for my esp32 devices. But unfortunately the examples of Nimble BLE in esp-idf documentation were of little help.
 
- I consulted many resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. But I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
+ So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, I decided to write down this tutorial for my future reference. 
+ 
+ I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
 
-I expect that you already have understanding of concept of GAP, GATT, services and characteristics. Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
 **So as they always say, lets get started!**  :sunny:
 
 
 
-In this tutorial we will create one service and two characteristics of this service.
-Client will be able read or write to the first characteristics. This characteristic is created only to show how to handle when client can read or write to same characteristic.
-
-In second characteristic we will learn to notify the client.
-
-Our first step will be to create UUIDs (for distinct identification) of service and characteristics. As we are going to create custom service and characteristics so the UUIDs should be 128 bits.  
-
-Go to https://www.uuidgenerator.net and generate three 128 bit UUIDs in bulk, one  for service and two for two characteristics. UUIDs will be of format (8-4-4-4-12).
-
-I have generated this UUID for service:  b2bbc642-46da-11ed-b878-0242ac120002 .
+I expect that you already have understanding of concept of GAP, GATT, services and characteristics etc. . Here is a link where these concepts are explained very well. https://learn.adafruit.com/introduction-to-bluetooth-low-energy/introduction .
 
 
-To be able to use these UUIDs in our code, we have to convert this HEX format UUID  by reversing the order. 
+ We will create one service and one characteristics of this service. 
 
-The above UUID will become:
- 0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xda, 0x46, 0x42, 0xc6, 0xbb, 0xb2 . (quit a boring exercise.)
+Client will be able read the characteristic value, write to it. Further this characteristic can send notifications to the client. 
 
- As we are planning to have two characteristics for this service, we will create two more UUIDs.
+- Our first step will be to create UUIDs (for distinct identification) of service and characteristic. As we are going to create custom service and characteristic so the UUIDs should be 128 bits.  
+Go to https://www.uuidgenerator.net and generate three 128 bit UUIDs in bulk, one  for service and one for characteristic. UUIDs will be of format (8-4-4-4-12).
 
- Characteristic 1 UUID: c9af9c76-46de-11ed-b878-0242ac120002
+    For exaample I have generated this UUID for service:  
 
- 0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xde, 0x46, 0x76, 0x9c, 0xaf, 0xc9
+    *b2bbc642-46da-11ed-b878-0242ac120002* .
+
+    To be able to use these UUIDs in our code, we have to convert this HEX format UUID  by reversing the order. 
+
+    The above UUID will become:
+
+    *0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xda, 0x46, 0x42, 0xc6, 0xbb, 0xb2 . (quit a boring exercise.)*
+
+     Generated characteristic UUID: 
+
+    *c9af9c76-46de-11ed-b878-0242ac120002*
+
+    After conversion:
+
+    *0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xde, 0x46, 0x76, 0x9c, 0xaf, 0xc9*
 
 
- Characteristic 2 UUID:94f85bd8-46e5-11ed-b878-0242ac120002
+- The rest I have tried to explained in form of comments in the code in file nimble.c, because in my opinion that would be easier to follow instead of explaining it here.
 
- 0x02, 0x00, 0x12, 0xac, 0x42, 0x02, 0x78, 0xb8, 0xed, 0x11, 0xe5, 0x46, 0xd8, 0x5b, 0xf8, 0x94
- 
+- Once you have flashed this code to your module,   
+    - open this link (chrome://bluetooth-internals/#adapter) in your browser.
+    - Press  button "Devices" on the left.
+    - Press "StartScan" on top right.
+    - Find your device "nimble-ble" in the list and press "Inspect" on right. You will see Services TABs list.
+    - Expand the service tab of your service UUID.
+    - Expand its characterstic.
+    - Select UTF-8 in dropdown list at right of value box.
+    -Press read.You will get the value of your characterstic.
+    -Write something in value box and press "Write" and you will see that value in your terminal. 
+    - Unfortunately you cannont see notifications sent by your esp32 in this. For this you will have to write some code in your app.
 
-The rest I have explained in form of comments in the code.
+
 
 Forgive me for over verbose comments and naming convention, but my emphasis is the clear explanation of what is happening in the code.
 
-I hope my this attempt will get you started in use of nimble BLE. Later you would be able to go further on your own, Thanks.
+I hope my this attempt will get you started in using nimble BLE. Later you would be able to go further on your own, Thanks.
 
 Bellow are some very useful links for working with Nimble BLE.
 
