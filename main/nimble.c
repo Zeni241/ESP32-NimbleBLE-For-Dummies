@@ -235,7 +235,7 @@ void startNVS() //! Mandatory to initialize NVS at the start.
   }
 }
 
-//@_______________________Bellow code will remain as it is_____________________________________
+//@________________Bellow code will remain as it is.Take it abracadabra of BLE 😀 😀________________
 
 static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max_len, void *dst, uint16_t *len)
 {
