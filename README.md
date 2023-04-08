@@ -63,7 +63,8 @@ Forgive me for over verbose comments and naming convention, but my emphasis is t
 
 I hope my this attempt will get you started in using nimble BLE. Later you would be able to go further on your own, Thanks.
 
-**And finally, if you find this repo useful, a star by you would be big encouragement for me** :wink:
+
+<p style="color:blue>**And finally, if you find this repo useful, a star by you would be big encouragement for me** :wink: </p>
 
 Bellow are some very useful links for working with Nimble BLE.
 
