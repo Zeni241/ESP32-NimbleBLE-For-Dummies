@@ -4,7 +4,7 @@
 ![nimble-esp](https://user-images.githubusercontent.com/13729574/200117670-21afcf63-758c-4038-8ccc-cb54e4df8b42.jpg)
 
 Apache MyNewt NimBLE is a highly configurable and BT SIG qualifiable BLE stack. It has much smaller heap and flash requirements as compared to Bluedroid.
-$\textcolor{magenta}{\textsf{Should be magenta}}$ 
+
 Due to these reasons I was very much interested to use it instead of Bluedroid or Bluetooth Classic for my esp32 devices. But unfortunately the examples of Nimble BLE in esp-idf documentation were of little help.
 
  So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, **Nimble BLE turned out to be much simpler and straight forward compared to bluedroid or bluetooth classic**. So I decided to write down this tutorial for my future reference. I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
@@ -62,9 +62,9 @@ Go to https://www.uuidgenerator.net and generate two 128 bit UUIDs in bulk, one 
 Forgive me for over verbose comments and naming convention, but my emphasis is the clear explanation of what is happening in the code.
 
 I hope my this attempt will get you started in using nimble BLE. Later you would be able to go further on your own, Thanks.
+$\textcolor{magenta}{\textsf{Should be magenta}}$ 
 
-
-<span style="color:blue">**$\textcolor{magenta}{\textsf{And finally, if you find this repo useful, a star by you would be big encouragement for me}}$ ** </span>:wink: 
+$\textcolor{magenta}{\textsf{And finally, if you find this repo useful, a star by you would be big encouragement for me}}$  :wink: 
 
 Bellow are some very useful links for working with Nimble BLE.
 
