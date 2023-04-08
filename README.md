@@ -10,7 +10,7 @@ Due to these reasons I was very much interested to use it instead of Bluedroid o
  So I consulted many other resources to clear my concept (I have given the links to resources at the end).Once there, **Nimble BLE turned out to be much simpler and straight forward compared to bluedroid or bluetooth classic**. So I decided to write down this tutorial for my future reference. I would be pleased if it could help any one. Everyone is free to use it, comment and suggest improvement in it.
 
 
-**So as they always say, lets get started!**  :sunny:
+**So as the cliche goes, lets get started!**  :sunny:
 
 
 
@@ -19,10 +19,10 @@ I expect that you already have understanding of concept of GAP, GATT, services a
 
  We will create one service and one characteristics of this service. 
 
-Client will be able read the characteristic value, write to it. Further this characteristic can send notifications to the client. 
+Client (your application) will be able read the characteristic value, write to it. Further this characteristic can send notifications to the client. 
 
 - Our first step will be to create UUIDs (for distinct identification) of service and characteristic. As we are going to create custom service and characteristic so the UUIDs should be 128 bits.  
-Go to https://www.uuidgenerator.net and generate three 128 bit UUIDs in bulk, one  for service and one for characteristic. UUIDs will be of format (8-4-4-4-12).
+Go to https://www.uuidgenerator.net and generate two 128 bit UUIDs in bulk, one  for service and one for characteristic. UUIDs will be of format (8-4-4-4-12).
 
     For exaample I have generated this UUID for service:  
 
@@ -62,6 +62,8 @@ Go to https://www.uuidgenerator.net and generate three 128 bit UUIDs in bulk, on
 Forgive me for over verbose comments and naming convention, but my emphasis is the clear explanation of what is happening in the code.
 
 I hope my this attempt will get you started in using nimble BLE. Later you would be able to go further on your own, Thanks.
+
+**And finally, if you find this repo useful, a star by yo would be big encouragement for me** :wink:
 
 Bellow are some very useful links for working with Nimble BLE.
 
